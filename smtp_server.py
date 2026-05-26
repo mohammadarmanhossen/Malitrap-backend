@@ -124,15 +124,18 @@ class MailtrapHandler:
 
 def run_server():
     handler = MailtrapHandler()
+    smtp_host = os.environ.get('SMTP_HOST', '127.0.0.1')
+    smtp_port = int(os.environ.get('SMTP_PORT', '2525'))
+    
     controller = Controller(
         handler, 
-        hostname='127.0.0.1', 
-        port=2525, 
+        hostname=smtp_host, 
+        port=smtp_port, 
         authenticator=auth_mechanism, 
         auth_require_tls=False
     )
     
-    logger.info("Starting Mailtrap SMTP server on 127.0.0.1:2525...")
+    logger.info(f"Starting Mailtrap SMTP server on {smtp_host}:{smtp_port}...")
     controller.start()
     
     try:

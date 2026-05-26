@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view, permission_classes, action
 from django.contrib.auth.models import User
 from .models import Inbox, Email
 from .serializers import UserSerializer, InboxSerializer, EmailSerializer
+import os
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -81,7 +82,9 @@ def send_test_email(request):
         msg['To']      = to_addr
 
     try:
-        with smtplib.SMTP('127.0.0.1', 2525, timeout=5) as server:
+        smtp_host = os.environ.get('SMTP_HOST', '127.0.0.1')
+        smtp_port = int(os.environ.get('SMTP_PORT', '2525'))
+        with smtplib.SMTP(smtp_host, smtp_port, timeout=5) as server:
             server.login(inbox.smtp_username, inbox.smtp_password)
             server.sendmail(from_addr, [to_addr], msg.as_string())
     except smtplib.SMTPException as e:

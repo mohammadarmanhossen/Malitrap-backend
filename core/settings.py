@@ -1,26 +1,25 @@
-"""
-Django settings for core project.
-"""
-
-import os
-from pathlib import Path
 import environ
+import os
 from datetime import timedelta
+from pathlib import Path
+import dj_database_url
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-env = environ.Env(
-    DEBUG=(bool, False)
-)
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
-SECRET_KEY = env('SECRET_KEY', default='django-insecure-default-key')
+SECRET_KEY = env("SECRET_KEY")
+DEBUG = env("DEBUG", default=False)
 
-DEBUG = env('DEBUG')
+ALLOWED_HOSTS = ["*"]
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
 
+STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MEDIA_URL = "media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Application definition
 
@@ -51,7 +50,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True # For MVP
@@ -80,9 +79,26 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': env.db('DATABASE_URL', default='sqlite:///db.sqlite3')
-}
+
+
+# DATABASES = {
+#     'default': env.db('DATABASE_URL', default='sqlite:///db.sqlite3')
+# }
+
+
+DATABASE_URL = env("DATABASE_URL", default=None)
+
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 
 # Password validation
@@ -118,13 +134,7 @@ USE_TZ = True
 
 ALLOWED_HOSTS = ["*"]
 
-STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
-MEDIA_URL = 'media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
