@@ -13,3 +13,5 @@ gunicorn
 whitenoise
 
 aiosmtpd>=1.4.4.post2
+
+python_version < 3.13
